@@ -1,6 +1,6 @@
 import * as services from "../services";
 import { internalServerError, badRequest} from "../middlewares/handle_errors";
-import { bid, title, price, available, category_code, image } from "../helpers/joi_schemas";
+import { bid, title, price, available, category_code, image, bids, filename, description} from "../helpers/joi_schemas";
 import Joi from "joi";
 const cloudinary = require('cloudinary').v2;
 
@@ -19,7 +19,7 @@ export const createNewBook = async (req, res) => {
     try {
         const fileData = req.file
         //tiền xử lý
-        const { error } = Joi.object({title, price, available, category_code, image}).validate({...req.body, image: fileData?.path})
+        const { error } = Joi.object({title, price, available, category_code, image, description}).validate({...req.body, image: fileData?.path})
         if(error) {
             if(fileData) cloudinary.uploader.destroy(fileData.filename)
             return badRequest(error.details[0].message, res)
@@ -50,6 +50,23 @@ export const updateBook = async (req, res) => {
 
     } catch (error) {
         console.log(error);
+        return internalServerError(res)
+    }
+}
+
+//DELETE
+export const deleteBook = async (req, res) => {
+    try {
+        //tiền xử lý
+        const { error } = Joi.object({bids, filename}).validate(req.query)
+        if(error) {
+            return badRequest(error.details[0].message, res)
+        } 
+        const response = await services.deleteBook(req.query.bids, req.query.filename)
+        return res.status(200).json(response)
+        // return res.status(200).json('ok')
+
+    } catch (error) {
         return internalServerError(res)
     }
 }

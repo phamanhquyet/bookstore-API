@@ -1,6 +1,6 @@
 import db from '../models';
 import { Op } from 'sequelize';
-import { v4 as generateId} from 'uuid'
+import { v4 as generateId } from 'uuid';
 const cloudinary = require('cloudinary').v2;
 
 //CRUD = CREATE - READ - UPDATE - DELETE
@@ -23,7 +23,7 @@ export const getBooks = ({ page, limit, order, name, available, ...query }) =>
       if (order) queries.order = [order];
       if (name) query.title = { [Op.substring]: name }; //op là viết tắt của operator
       if (available) query.available = { [Op.between]: available };
-      const response = await db.Book.findAndCountAll({ 
+      const response = await db.Book.findAndCountAll({
         where: query,
         ...queries, //sử dụng destructuring rải các thuộc tính của queries ra
         attributes: {
@@ -61,42 +61,65 @@ export const createNewBook = (body, fileData) =>
         defaults: {
           ...body,
           id: generateId(),
-          image: fileData?.path
-        }
+          image: fileData?.path,
+          filename: fileData?.filename
+        },
       });
       resolve({
         error: response[1] ? 0 : 1, //true: 0 false: 1
         message: response[1] ? 'Created' : 'Cannot create new book',
       });
-      if(fileData && !response[1]) cloudinary.uploader.destroy(fileData.filename);
+      if (fileData && !response[1]) cloudinary.uploader.destroy(fileData.filename);
     } catch (error) {
       //nếu việc thêm sách bị lỗi thì phải xóa ảnh trên cloudinary vì khi chạy nó sẽ chạy vào middleware để up ảnh lên trước
       reject(error);
-      if(fileData) cloudinary.uploader.destroy(fileData.filename);
+      if (fileData) cloudinary.uploader.destroy(fileData.filename);
     }
   });
 
-  
-
 //UPDATE
-export const updateBook = ({bid, ...body}, fileData) =>
+export const updateBook = ({ bid, ...body }, fileData) =>
   new Promise(async (resolve, reject) => {
     try {
-      if(fileData) body.image = fileData?.path
-      const response = await db.Book.update(
-        body,
-        {
-          where: { id: bid } 
-        }
-      );
+      if (fileData) body.image = fileData?.path;
+      const response = await db.Book.update(body, {
+        where: { id: bid },
+      });
       resolve({
         error: response[0] > 0 ? 0 : 1, //true: 0 false: 1
         message: response[0] ? `${response[0]} updated` : 'Cannot update',
-        
       });
-      if(fileData && !response[0] === 0) cloudinary.uploader.destroy(fileData.filename);
+      if (fileData && !response[0] === 0) cloudinary.uploader.destroy(fileData.filename);
     } catch (error) {
       reject(error);
-      if(fileData) cloudinary.uploader.destroy(fileData.filename);
+      if (fileData) cloudinary.uploader.destroy(fileData.filename);
+    }
+  });
+
+//DELETE
+//bids có s vì dữ liệu truyền vào là một mảng, trong trường hợp muốn xóa nhiều sách một lúc
+//[id1, id2]
+
+/*
+params = {
+  bids = [id1, id2],
+  filename = [filename1, filename2]
+}
+*/
+export const deleteBook = (bids, filename) =>
+  new Promise(async (resolve, reject) => {
+    try {
+      const response = await db.Book.destroy({
+        where: { id: bids },
+      });
+      resolve({
+        error: response > 0 ? 0 : 1, //true: 0 false: 1
+        message:`${response} book(s) deleted`,
+      });
+      //cloudinary.uploader.destroy chỉ xóa được một element
+      //muốn xóa nhiều element cần dùng cloudinary.api.delete_resources(mảng các element)
+      if (filename) cloudinary.api.delete_resources(filename);
+    } catch (error) {
+      reject(error);
     }
   });

@@ -14,13 +14,13 @@ POST http://localhost:5000/api/v1/auth/login
 Content-Type: application/json
 
 {
-    "email": "admin2@example.com",
-    "password": "123456"
+    "email": "admin3@example.com",
+    "password": "154446"
 }
 
 ###
 GET http://localhost:5000/api/v1/user/
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MywiZW1haWwiOiJhZG1pbjJAZXhhbXBsZS5jb20iLCJyb2xlX2NvZGUiOiJSMyIsImlhdCI6MTY3NjYyMDAyMSwiZXhwIjoxNjc3MDUyMDIxfQ.gyZw0GdzAIO2zxqm4WSiwIw_Fs-8tnUMM_m-IZSMMBg
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJhZG1pbjNAZXhhbXBsZS5jb20iLCJyb2xlX2NvZGUiOiJSMyIsImlhdCI6MTY3ODcwMDM5MywiZXhwIjoxNjc4NzAwMzk4fQ.ObpdipcZalhu0OQ-PhD1Qqtkd-mfZbePn4bRhbfruoQ
 
 ###
 GET http://localhost:5000/api/v1/insert/

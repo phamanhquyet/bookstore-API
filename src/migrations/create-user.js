@@ -26,6 +26,9 @@ module.exports = {
         type: Sequelize.STRING,
         defaultValue: 'R3'
       },
+      refresh_token: {
+        type: Sequelize.STRING
+      },
       createdAt: {
         allowNull: false,
         type: 'TIMESTAMP', 

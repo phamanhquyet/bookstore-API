@@ -12,3 +12,7 @@ export const available = Joi.number().required()
 export const category_code = Joi.string().uppercase().alphanum().required()
 export const image = Joi.string().required()
 export const bid = Joi.string().required() //book id 
+export const bids = Joi.array().required() //book id 
+export const filename = Joi.array().required()
+export const description = Joi.string().required()
+export const refreshToken = Joi.string().required()
